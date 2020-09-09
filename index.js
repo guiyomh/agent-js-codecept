@@ -1,4 +1,4 @@
-const RPClient = require('reportportal-client');
+const RPClient = require('@reportportal/client-javascript');
 const fs = require('fs');
 const path = require('path');
 const debug = require('debug')('codeceptjs:reportportal');
@@ -38,7 +38,8 @@ const defaultConfig = {
   attributes: [],
   debug: false,
   rerun: undefined,
-  enabled: false
+  enabled: false,
+  isLaunchMergeRequired: false
 };
 
 const requiredFields = ['projectName', 'token', 'endpoint', 'projectName'];
@@ -242,6 +243,7 @@ module.exports = (config) => {
       endpoint: config.endpoint,
       project: config.projectName,
       debug: config.debug,
+      isLaunchMergeRequired: config.isLaunchMergeRequired,
     });
 
     return rpClient.startLaunch({
