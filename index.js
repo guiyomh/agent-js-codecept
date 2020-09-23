@@ -327,13 +327,32 @@ module.exports = (config) => {
     return currentMetaSteps[currentMetaSteps.length - 1] || testObj;
   }
 
-  function finishStep(step) {
+  async function finishStep(step) {
     if (!step) return;
     if (!step.tempId) {
       debug(`WARNING: '${step.toString()}' step can't be closed, it has no tempId`);
       return;
     }
     debug(`Finishing '${step.toString()}' step`);
+
+    if (step.name === 'saveScreenshot' || step.name === 'saveElementScreenshot') {
+      const filename = step.name === 'saveElementScreenshot' ? step.args[1] : step.args[0];
+      const content = fs.readFileSync(path.join(global.output_dir, filename));
+      const screenshot = {
+        name: filename,
+        type: 'image/png',
+        content,
+      };
+      resp = await rpClient.sendLog(
+        step.tempId,
+        {
+          level: 'info',
+          message: `Screenshoot saved : ${filename}`,
+          time: step.startTime,
+        },
+        screenshot
+      ).promise;
+    }
 
     return rpClient.finishTestItem(step.tempId, {
       endTime: rpClient.helpers.now(),
